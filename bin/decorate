@@ -1,0 +1,9 @@
+#!/bin/bash -e
+# Decorate if summon is installed and secrets.yml exists
+
+BUILD_DIR=$1
+
+STATUS=$(command -v summon >/dev/null; echo $?)
+[[ -z $STATUS ]] && STATUS=$(ls $BUILD_DIR/secrets.yml &>/dev/null; echo $?)
+
+exit $STATUS

@@ -1,0 +1,25 @@
+#!/bin/bash -e
+
+SUMMON_RELEASE_URL="https://github.com/cyberark/summon/releases/download/v0.6.5/summon-linux-amd64.tar.gz"
+SUMMON_CONJUR_RELEASE_URL="https://github.com/cyberark/summon-conjur/releases/download/v0.5.0/summon-conjur-linux-amd64.tar.gz"
+SUMMON_LIB_DIR=/usr/local/lib/summon
+BUILD_DIR=$1
+
+if [[ $COMPILE ]]; then
+  pushd /bin
+    curl -sSL $SUMMON_RELEASE_URL | tar xz
+    chmod +x summon
+  popd
+
+  mkdir -p $SUMMON_LIB_DIR
+  pushd $SUMMON_LIB_DIR
+    curl -sSL $SUMMON_CONJUR_RELEASE_URL | tar xz
+    chmod +x summon-conjur
+  popd
+
+  unset COMPILE
+else
+  pushd $BUILD_DIR
+    summon cat @SUMMONENVFILE | xargs
+  popd
+fi
