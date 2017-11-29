@@ -1,11 +1,4 @@
-#!/bin/bash -e
-# Detect if secrets.yml exists
-
-# Typically a decorator would return 1, but we'll install summon during
-# the initial compile. Later, we can check if summon is already instealled
-# to export the secrets to the environment (decorate).
-BUILD_DIR=$1
-
-export COMPILE=1
-
-exit $(ls $BUILD_DIR/secrets.yml &>/dev/null; echo $?)
+#!/usr/bin/env bash
+# bin/detect <build-dir>
+# We are a decorator, not a buildpack, so we always decline to build
+exit 1
