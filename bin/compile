@@ -1,5 +1,4 @@
 #!/bin/bash -e
-set -x
 # bin/compile <build-dir>
 
 BUILD_DIR=$1
