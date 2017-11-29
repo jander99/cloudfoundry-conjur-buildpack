@@ -17,7 +17,7 @@ BUILD_DIR=$1
 ESCAPE_SED='s/$/"/; s/=/="/; s/^/export /'
 
 eval $(echo $VCAP_SERVICES | jq --raw-output '
-."cyberark-conjur"[0].credentials |
+.["cyberark-conjur"][0].credentials |
 "CONJUR_ACCOUNT=\(.account)
 CONJUR_AUTHN_API_KEY=\(.authn_api_key)
 CONJUR_AUTHN_LOGIN=\(.authn_login)
