@@ -16,4 +16,4 @@
 
 BUILD_DIR=$1
 
-[ -f $BUILD_DIR/secrets.yml ] && echo $VCAP_SERVICES | jq 'if has("cyberark-conjur") then empty else error("404 conjur not found") end' || exit 1
+[ -f $BUILD_DIR/secrets.yml ] && [[ true = $(echo $VCAP_SERVICES | jq 'has("cyberark-conjur")') ]] || exit 1
