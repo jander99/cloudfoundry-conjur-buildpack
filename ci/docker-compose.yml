@@ -4,7 +4,7 @@ services:
     build: .
     image: buildpack-tester
     environment:
-      BUILDPACK_BUILD_DIR: $BUILDPACK_ROOT_DIR/buildpack-build
+      BUILDPACK_BUILD_DIR: $BUILDPACK_ROOT_DIR/buildpack-build # tests run against the code in this directory
     volumes:
       - ..:/$BUILDPACK_ROOT_DIR
 

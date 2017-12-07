@@ -10,8 +10,10 @@ trap finish EXIT
 # sets up conjur and retrieves credentials
 . ./setup-conjur.sh
 
+# unpack latest build of buildpack
 docker-compose run --rm tester bash ./unpack.sh
 
+# run tests against latest build of buildpack
 docker-compose run --rm \
  -e CONJUR_CREDENTIALS_JSON="$CONJUR_CREDENTIALS_JSON" \
  -w "$BUILDPACK_ROOT_DIR/ci" \
