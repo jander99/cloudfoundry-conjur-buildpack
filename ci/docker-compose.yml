@@ -3,6 +3,10 @@ services:
   tester:
     build: .
     image: buildpack-tester
+    environment:
+      BUILDPACK_BUILD_DIR: $BUILDPACK_ROOT_DIR/buildpack-build
+    volumes:
+      - ..:/$BUILDPACK_ROOT_DIR
 
   postgres:
     image: postgres:9.3

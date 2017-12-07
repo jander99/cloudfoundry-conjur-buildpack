@@ -6,6 +6,7 @@ function finish {
 }
 trap finish EXIT
 
+. ./buildpack_vars.sh
 . ./setup-conjur.sh
 
-docker-compose run --rm -e CONJUR_CREDENTIALS_JSON="$CONJUR_CREDENTIALS_JSON" -v $(pwd):/conjurinc/cloudfoundry-conjur-buildpack -v $(pwd)/buildpack-build:/buildpack-build tester bash
+docker-compose run --rm -e CONJUR_CREDENTIALS_JSON="$CONJUR_CREDENTIALS_JSON" -e BUILDPACK_BUILD_DIR="$BUILDPACK_ROOT_DIR" tester bash

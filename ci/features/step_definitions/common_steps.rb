@@ -23,7 +23,7 @@ EOS
 end
 
 Given(/^the '([^"]*)' script is run$/) do |script|
-  step "the '/buildpack-build/bin/#{script} #{@BUILD_DIR}' command is run"
+  step "the '#{ENV['BUILDPACK_BUILD_DIR']}/bin/#{script} #{@BUILD_DIR}' command is run"
 end
 
 Then(/^the result should have a non\-zero exit status$/) do

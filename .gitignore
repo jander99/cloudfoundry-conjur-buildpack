@@ -1,6 +1,5 @@
 *.zip
 ci/features/reports/
 buildpack-build/
-unzipped-buildpack-build/
 .DS_Store
 .idea/
