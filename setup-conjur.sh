@@ -19,5 +19,8 @@ docker-compose run --rm \
  -e CONJUR_AUTHN_LOGIN=admin \
  --entrypoint bash tester -c "
 conjur policy load root $BUILDPACK_ROOT_DIR/ci/policy/root.yml
-conjur variable values add conjur_secret_id 'a conjur secret'
+conjur variable values add conjur_single_line_secret_id 'a conjur secret on a single line'
+conjur variable values add conjur_multi_line_secret_id 'a conjur secret
+on multiple lines
+'
 "

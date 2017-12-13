@@ -1,1 +1,2 @@
-- !variable conjur_secret_id
+- !variable conjur_single_line_secret_id
+- !variable conjur_multi_line_secret_id

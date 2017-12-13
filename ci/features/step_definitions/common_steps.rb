@@ -74,7 +74,8 @@ end
 
 And(/^the build directory has a secrets\.yml file$/) do
   secretsyml = <<EOS
-CONJUR_SECRET: !var conjur_secret_id
+CONJUR_SINGLE_LINE_SECRET: !var conjur_single_line_secret_id
+CONJUR_MULTI_LINE_SECRET: !var conjur_multi_line_secret_id
 LITERAL_SECRET: a literal secret
 EOS
   File.open("#{@BUILD_DIR}/secrets.yml", 'w') { |file| file.write(secretsyml) }
