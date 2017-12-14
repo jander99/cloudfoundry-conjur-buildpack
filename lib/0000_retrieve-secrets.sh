@@ -14,43 +14,46 @@
 #'
 
 BUILD_DIR=$1
-ESCAPE_SED='s/$/"/; s/=/="/; s/^/export /'
 
 CREDS_PATH='.["cyberark-conjur"][0].credentials'
-CREDS_FORMAT_OUTPUT=$(echo "
-CONJUR_ACCOUNT=\(.account)
-CONJUR_AUTHN_API_KEY=\(.authn_api_key)
-CONJUR_AUTHN_LOGIN=\(.authn_login)
-CONJUR_APPLIANCE_URL=\(.appliance_url)
-" | grep '.*\S.*')
+CREDS_FORMAT_OUTPUT=(
+"CONJUR_ACCOUNT=\(.account)"
+"CONJUR_AUTHN_API_KEY=\(.authn_api_key)"
+"CONJUR_AUTHN_LOGIN=\(.authn_login)"
+"CONJUR_APPLIANCE_URL=\(.appliance_url)"
+)
 
-eval $(echo $VCAP_SERVICES | jq --raw-output "$CREDS_PATH | \"$CREDS_FORMAT_OUTPUT\"" | sed -e "$ESCAPE_SED")
+function _export_var () {
+  var=$1
+  var_value=$2;
+  var_value=$(echo "$var_value" | sed -e "s/'/'\\\''/g")
+  echo "export $var='$var_value'"
+}
+export -f _export_var
 
+# set cyberark-conjur credentials env vars
+CRED_KEYS=$(printf "%s\n" "${CREDS_FORMAT_OUTPUT[@]}" | cut -d \= -f 2)
+IFS=$'\n'; CRED_VARS=( $(printf "%s\n" "${CREDS_FORMAT_OUTPUT[@]}" | cut -d \= -f 1) )
+IFS=$'\n'; CRED_VALUES=( $(echo $VCAP_SERVICES | jq --raw-output "$CREDS_PATH | \"$CRED_KEYS\"") )
+
+. <(
+for i in "${!CRED_VARS[@]}"; do
+  _export_var ${CRED_VARS[$i]} ${CRED_VALUES[$i]}
+done
+)
+
+# inject secrets into environment
 pushd $BUILD_DIR
-# list of variables that summon will fetch (ignores variables that are already set)
+  # list of variables that summon will fetch (ignores variables that are already set)
   _summon_vars_list=$(./summon -p /bin/echo bash -c "comm -13 <(echo \"$(bash -c 'compgen -v | sort')\") <(compgen -v | sort)")
-# export variables from summon. except "set_summon_vars"
-  _set_summon_vars=$(env _summon_vars_list="$_summon_vars_list" ./summon -p ./summon-conjur bash <<'EOL'
+  # export variables from summon. except "set_summon_vars"
+  source <(./summon -p ./summon-conjur bash <<EOL
 echo "$_summon_vars_list" | while read line
 do
-  var=$line;
-  var_value=$(eval "echo \"\$$var\"");
-
-  if [ ! $(echo "$var_value" | wc -l) -eq 1 ]
-  then
-    var_value=$(echo "$var_value" | jq . -R -s);
-  else
-    var_value="\"$var_value\""
-  fi
-
-  echo "$var"'=$(cat <<'"'EOV'"
-  echo "$var_value"
-  echo 'EOV'
-  echo ')'
-
-  echo "export $var=\$(echo \"\$$var\" | jq -r .)"
+  _export_var \$line "\${!line}"
 done
 EOL
 )
-  eval "$_set_summon_vars"
 popd
+
+unset -f _export_var
