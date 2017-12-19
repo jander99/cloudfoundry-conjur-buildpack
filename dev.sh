@@ -10,4 +10,4 @@ trap finish EXIT
 . ./setup-conjur.sh
 
 # run tests against buildpack source
-docker-compose run --rm -e CONJUR_CREDENTIALS_JSON="$CONJUR_CREDENTIALS_JSON" -e BUILDPACK_BUILD_DIR="$BUILDPACK_ROOT_DIR" tester bash
+docker-compose run --rm -e BUILDPACK_BUILD_DIR="$BUILDPACK_ROOT_DIR" tester bash
