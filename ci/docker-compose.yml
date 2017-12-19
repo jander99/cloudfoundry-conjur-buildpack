@@ -18,7 +18,6 @@ services:
       CONJUR_ADMIN_PASSWORD: admin
       DATABASE_URL: postgres://postgres@postgres/postgres
       CONJUR_DATA_KEY: 'WMfApcDBtocRWV+ZSUP3Tjr5XNU+Z2FdBb6BEezejIs='
-      RAILS_ENV:
     depends_on:
       - postgres
     volumes:
