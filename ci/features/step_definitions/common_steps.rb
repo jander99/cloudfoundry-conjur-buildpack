@@ -44,7 +44,12 @@ Given(/^VCAP_SERVICES contains cybark\-conjur credentials$/) do
 export VCAP_SERVICES='
 {
  "cyberark-conjur": [{
-   "credentials": #{ENV['CONJUR_CREDENTIALS_JSON']}
+  "credentials": {
+   "appliance_url": "#{Conjur.configuration.appliance_url}",
+   "authn_api_key": "#{admin_api_key}",
+   "authn_login": "admin",
+   "account": "#{Conjur.configuration.account}"
+  }
  }]
 }
 '
@@ -74,9 +79,11 @@ end
 
 And(/^the build directory has a secrets\.yml file$/) do
   secretsyml = <<EOS
-CONJUR_SINGLE_LINE_SECRET: !var conjur_single_line_secret_id
-CONJUR_MULTI_LINE_SECRET: !var conjur_multi_line_secret_id
 LITERAL_SECRET: a literal secret
 EOS
+  File.open("#{@BUILD_DIR}/secrets.yml", 'w') { |file| file.write(secretsyml) }
+end
+
+When(/^the build directory has this secrets\.yml file$/) do |secretsyml|
   File.open("#{@BUILD_DIR}/secrets.yml", 'w') { |file| file.write(secretsyml) }
 end

@@ -13,9 +13,13 @@ services:
 
   conjur:
     image: cyberark/conjur:0.1.0-stable
-    command: server -a cucumber
+    command: server -a cucumber -f /empty.yml
     environment:
+      CONJUR_ADMIN_PASSWORD: admin
       DATABASE_URL: postgres://postgres@postgres/postgres
       CONJUR_DATA_KEY: 'WMfApcDBtocRWV+ZSUP3Tjr5XNU+Z2FdBb6BEezejIs='
+      RAILS_ENV:
     depends_on:
       - postgres
+    volumes:
+      - "./empty.yml:/empty.yml"
