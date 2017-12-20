@@ -23,7 +23,7 @@ EOS
 end
 
 Given(/^the '([^"]*)' script is run$/) do |script|
-  step "the '/buildpack-build/bin/#{script} #{@BUILD_DIR}' command is run"
+  step "the '#{ENV['BUILDPACK_BUILD_DIR']}/bin/#{script} #{@BUILD_DIR}' command is run"
 end
 
 Then(/^the result should have a non\-zero exit status$/) do
@@ -44,7 +44,12 @@ Given(/^VCAP_SERVICES contains cybark\-conjur credentials$/) do
 export VCAP_SERVICES='
 {
  "cyberark-conjur": [{
-   "credentials": #{ENV['CONJUR_CREDENTIALS_JSON']}
+  "credentials": {
+   "appliance_url": "#{Conjur.configuration.appliance_url}",
+   "authn_api_key": "#{admin_api_key}",
+   "authn_login": "admin",
+   "account": "#{Conjur.configuration.account}"
+  }
  }]
 }
 '
@@ -74,8 +79,11 @@ end
 
 And(/^the build directory has a secrets\.yml file$/) do
   secretsyml = <<EOS
-CONJUR_SECRET: !var conjur_secret_id
 LITERAL_SECRET: a literal secret
 EOS
+  File.open("#{@BUILD_DIR}/secrets.yml", 'w') { |file| file.write(secretsyml) }
+end
+
+When(/^the build directory has this secrets\.yml file$/) do |secretsyml|
   File.open("#{@BUILD_DIR}/secrets.yml", 'w') { |file| file.write(secretsyml) }
 end
