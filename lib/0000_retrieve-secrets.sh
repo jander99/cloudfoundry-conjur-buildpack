@@ -14,16 +14,46 @@
 #'
 
 BUILD_DIR=$1
-ESCAPE_SED='s/$/"/; s/=/="/; s/^/export /'
 
-eval $(echo $VCAP_SERVICES | jq --raw-output '
-.["cyberark-conjur"][0].credentials |
-"CONJUR_ACCOUNT=\(.account)
-CONJUR_AUTHN_API_KEY=\(.authn_api_key)
-CONJUR_AUTHN_LOGIN=\(.authn_login)
-CONJUR_APPLIANCE_URL=\(.appliance_url)"
-' | sed -e "$ESCAPE_SED")
+CREDS_PATH='.["cyberark-conjur"][0].credentials'
+CREDS_FORMAT_OUTPUT=(
+"CONJUR_ACCOUNT=\(.account)"
+"CONJUR_AUTHN_API_KEY=\(.authn_api_key)"
+"CONJUR_AUTHN_LOGIN=\(.authn_login)"
+"CONJUR_APPLIANCE_URL=\(.appliance_url)"
+)
 
+function _export_var () {
+  var=$1
+  var_value=$2;
+  var_value=$(echo "$var_value" | sed -e "s/'/'\\\''/g")
+  echo "export $var='$var_value'"
+}
+export -f _export_var
+
+# set cyberark-conjur credentials env vars
+CRED_KEYS=$(printf "%s\n" "${CREDS_FORMAT_OUTPUT[@]}" | cut -d \= -f 2)
+IFS=$'\n'; CRED_VARS=( $(printf "%s\n" "${CREDS_FORMAT_OUTPUT[@]}" | cut -d \= -f 1) )
+IFS=$'\n'; CRED_VALUES=( $(echo $VCAP_SERVICES | jq --raw-output "$CREDS_PATH | \"$CRED_KEYS\"") )
+
+. <(
+for i in "${!CRED_VARS[@]}"; do
+  _export_var ${CRED_VARS[$i]} ${CRED_VALUES[$i]}
+done
+)
+
+# inject secrets into environment
 pushd $BUILD_DIR
-  eval $(./summon -p ./summon-conjur cat @SUMMONENVFILE | sed -e "$ESCAPE_SED")
+  # list of variables that summon will fetch (ignores variables that are already set)
+  _summon_vars_list=$(./summon -p /bin/echo bash -c "comm -13 <(echo \"$(bash -c 'compgen -v | sort')\") <(compgen -v | sort)")
+  # export variables from summon. except "set_summon_vars"
+  source <(./summon -p ./summon-conjur bash <<EOL
+echo "$_summon_vars_list" | while read line
+do
+  _export_var \$line "\${!line}"
+done
+EOL
+)
 popd
+
+unset -f _export_var
