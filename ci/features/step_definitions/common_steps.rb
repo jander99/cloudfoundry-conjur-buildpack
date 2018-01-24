@@ -29,7 +29,7 @@ end
 Given(/^the \.profile\.d scripts are copied into the lib directory of the app's root folder$/) do
   step "the following command is run:", <<EOS
 cd #{@BUILD_DIR}
-mkdir .profile.d
+mkdir -p .profile.d
 cp #{ENV['BUILDPACK_BUILD_DIR']}/lib/0000_install-summon.sh ./.profile.d/0000_install-summon.sh
 cp #{ENV['BUILDPACK_BUILD_DIR']}/lib/0001_retrieve-secrets.sh ./.profile.d/0001_retrieve-secrets.sh
 EOS
