@@ -25,7 +25,7 @@ Internally, the Conjur Buildpack uses [Summon](https://cyberark.github.io/summon
 The buildpack is comprised of the [3 lifecycle scripts](https://github.com/cf-platform-eng/meta-buildpack#how-to-write-a-decorator) that are required for decorator buildpacks.
 
 + Detect script always returns a non-zero exit status.
-+ Compile script installs summon, summon-conjur in the app's root directory and a `.profile.d` script at `./.profile.d/0000_retrieve-secrets.sh` relative to the app's root directory.
++ Compile script installs summon, summon-conjur in the app's root directory and a `.profile.d` script at `./.profile.d/0001_retrieve-secrets.sh` relative to the app's root directory.
 + Decorate script returns a 0 when `secrets.yml` exists in the root folder of your app and the "cyberark-conjur" key is present in `VCAP_SERVICES`, otherwise non-zero exit status
 
 The `.profile.d` script is responsible for retrieving secrets and injecting them into the session environment variables at the start of the app.
@@ -85,7 +85,13 @@ As described in the [`meta-buildpack` documentation](https://github.com/cf-platf
 + `cf push` with the `meta-buildpack` specified in app's manifest.
 + `cf push -b meta-buildpack`
 
-Assuming the app is bound to a Conjur service instance, pushing the app will result in the Conjur buildpack being invoked, as well as the language buildpack. The secrets specified in the `secrets.yml` file will then be available in the session environment variables at the start of the app.
+Assuming the app is bound to a Conjur service instance, pushing the app will result in the Conjur buildpack being invoked, as well as the language buildpack. The secrets specified in the `secrets.yml` file will now be available in the session environment variables at the start of the app.
+
+### Alternative usage without `meta-buildpack`
+
+**This section requires that the app be bound to a Conjur service instance and the `secrets.yml` file has been created and is in place.**
+ 
+To circumvent the limitations of `meta-buildpack` you can simply copy the contents of the `./lib` directory in this repository to the `./.profile.d` directory relative to your app's root directory. When your application starts the secrets specified in the `secrets.yml` file will now be available in the session environment variables at the start of the app.
 
 ## Development
 
