@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 _conjur_BUILD_DIR=$1
 _conjur_BIN_DIR="$_conjur_BUILD_DIR/bin"
