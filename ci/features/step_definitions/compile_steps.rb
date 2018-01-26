@@ -1,10 +1,10 @@
 Then(/^summon is installed$/) do
-  `#{@BUILD_DIR}/summon -v`
+  `#{@BIN_DIR}/summon -v`
   expect($?.exitstatus).to eq (0)
 end
 
 Then(/^summon-conjur is installed$/) do
-  `#{@BUILD_DIR}/summon-conjur -v`
+  `#{@BIN_DIR}/summon-conjur -v`
   expect($?.exitstatus).to eq (0)
 end
 

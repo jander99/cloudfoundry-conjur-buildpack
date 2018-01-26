@@ -18,7 +18,7 @@ Feature: profile d script
     first line
     second line
     """
-    And VCAP_SERVICES contains cybark-conjur credentials
+    And VCAP_SERVICES contains cyberark-conjur credentials
     And the build directory has this secrets.yml file
     """
     CONJUR_SINGLE_LINE_SECRET: !var conjur_single_line_secret_id

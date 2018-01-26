@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 
-BUILD_DIR=$1
-ESCAPED_BUILD_DIR=$(echo $BUILD_DIR | sed -e 's/[\/&]/\\&/g')
+_conjur_BUILD_DIR=$1
+_conjur_BIN_DIR="$_conjur_BUILD_DIR/bin"
+_conjur_ESCAPED_BIN_DIR=$(echo "$_conjur_BIN_DIR" | sed -e 's/[\/&]/\\&/g')
 
-curl -sSL https://raw.githubusercontent.com/cyberark/summon/master/install.sh | sed -e 's/sudo //' -e "s/\/usr\/local\/bin/$ESCAPED_BUILD_DIR/" -e "s/-d \"\/etc\/bash_completion.d\"/\! 1/" | bash
-curl -sSL https://raw.githubusercontent.com/cyberark/summon-conjur/master/install.sh | sed -e 's/sudo //' -e "s/\/usr\/local\/lib\/summon/$ESCAPED_BUILD_DIR/" | bash
+mkdir -p ${_conjur_BIN_DIR}
+curl -sSL https://raw.githubusercontent.com/cyberark/summon/master/install.sh | sed -e 's/sudo //' -e "s/\/usr\/local\/bin/$_conjur_ESCAPED_BIN_DIR/" -e "s/-d \"\/etc\/bash_completion.d\"/\! 1/" | bash
+curl -sSL https://raw.githubusercontent.com/cyberark/summon-conjur/master/install.sh | sed -e 's/sudo //' -e "s/\/usr\/local\/lib\/summon/$_conjur_ESCAPED_BIN_DIR/" | bash
+
+unset -f _conjur_ESCAPED_BIN_DIR _conjur_BIN_DIR _conjur_ESCAPED_BIN_DIR

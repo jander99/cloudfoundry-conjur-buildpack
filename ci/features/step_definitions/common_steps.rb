@@ -52,7 +52,7 @@ Then(/^the result should have a 1 exit status$/) do
   expect(@result.exitstatus).to eq(1)
 end
 
-Given(/^VCAP_SERVICES contains cybark\-conjur credentials$/) do
+Given(/^VCAP_SERVICES contains cyberark\-conjur credentials$/) do
   @commands ||= []
   @commands << <<eos
 export VCAP_SERVICES='
