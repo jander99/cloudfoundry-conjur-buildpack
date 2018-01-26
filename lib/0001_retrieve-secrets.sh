@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
-set +x -e
+set +x
+
+echo "cyberark-conjur-buildpack: retrieving & injecting secrets"
+
+err_report() {
+  local previous_exit=$?
+  trap - ERR
+  echo "${BASH_SOURCE}: Error on line $1" 1>&2
+  exit ${previous_exit}
+}
+trap 'err_report $LINENO' ERR
 
 #export VCAP_SERVICES='
 #{
@@ -108,3 +118,4 @@ popd
 
 # clean up
 unset -f _conjur_tmp_script _conjur_previous_exit _conjur_BIN_DIR conjur_BUILD_DIR
+trap - ERR

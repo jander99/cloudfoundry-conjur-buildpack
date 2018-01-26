@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
-set -e
+
+echo "cyberark-conjur-buildpack: installing summon & summon-conjur..."
+
+err_report() {
+  local previous_exit=$?
+  trap - ERR
+  echo "${BASH_SOURCE}: Error on line $1" 1>&2
+  exit ${previous_exit}
+}
+trap 'err_report $LINENO' ERR
 
 _conjur_BUILD_DIR=$1
 _conjur_BIN_DIR="$_conjur_BUILD_DIR/bin"
@@ -10,3 +19,4 @@ curl -sSL https://raw.githubusercontent.com/cyberark/summon/master/install.sh | 
 curl -sSL https://raw.githubusercontent.com/cyberark/summon-conjur/master/install.sh | sed -e 's/sudo //' -e "s/\/usr\/local\/lib\/summon/$_conjur_ESCAPED_BIN_DIR/" | bash
 
 unset -f _conjur_ESCAPED_BIN_DIR _conjur_BIN_DIR _conjur_ESCAPED_BIN_DIR
+trap - ERR
