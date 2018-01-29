@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.2.0] - 2018-01-29
 
+### Added
 Added supporting files and documentation for the custom buildpack use case
 
 ## 0.1.0 - 2018-01-24
