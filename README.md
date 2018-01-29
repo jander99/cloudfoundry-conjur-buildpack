@@ -72,7 +72,7 @@ As described in the [`meta-buildpack` documentation](https://github.com/cf-platf
 
 Assuming the app is bound to a Conjur service instance, pushing the app will result in the Conjur buildpack being invoked, as well as the language buildpack. The secrets specified in the `secrets.yml` file will now be available in the session environment variables at the start of the app.
 
-### <a name="custom-buildpack-instructions"></a>Instructions for users with custom buildpacks
+### <a name="custom-buildpack-usage"></a>Usage for users with custom buildpacks
 
 To retrieve secrets without using `meta-buildpack` you can simply:
 
