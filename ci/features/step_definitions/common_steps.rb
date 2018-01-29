@@ -26,6 +26,20 @@ Given(/^the '([^"]*)' script is run$/) do |script|
   step "the '#{ENV['BUILDPACK_BUILD_DIR']}/bin/#{script} #{@BUILD_DIR}' command is run"
 end
 
+Given(/^the \.profile\.d scripts are copied into the lib directory of the app's root folder$/) do
+  step "the following command is run:", <<EOS
+cd #{@BUILD_DIR}
+mkdir -p .profile.d
+cp #{ENV['BUILDPACK_BUILD_DIR']}/lib/0000_install-summon.sh ./.profile.d/0000_install-summon.sh
+cp #{ENV['BUILDPACK_BUILD_DIR']}/lib/0001_retrieve-secrets.sh ./.profile.d/0001_retrieve-secrets.sh
+EOS
+end
+
+
+Given(/^the following command is run:$/) do |multiline_text|
+  step "the '#{multiline_text}' command is run"
+end
+
 Then(/^the result should have a non\-zero exit status$/) do
   expect(@result.exitstatus).not_to eq(0)
 end
@@ -38,7 +52,7 @@ Then(/^the result should have a 1 exit status$/) do
   expect(@result.exitstatus).to eq(1)
 end
 
-Given(/^VCAP_SERVICES contains cybark\-conjur credentials$/) do
+Given(/^VCAP_SERVICES contains cyberark\-conjur credentials$/) do
   @commands ||= []
   @commands << <<eos
 export VCAP_SERVICES='

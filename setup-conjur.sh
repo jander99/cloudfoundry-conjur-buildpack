@@ -6,4 +6,4 @@
 docker-compose up -d conjur
 
 # wait for conjur
-docker-compose run --rm tester bash ./wait_for_conjur.sh
+docker-compose exec -T conjur conjurctl wait -r 30 -p 80

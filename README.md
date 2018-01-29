@@ -10,22 +10,26 @@ Internally, the Conjur Buildpack uses [Summon](https://cyberark.github.io/summon
 
 ## Requirements
 
-+ The Conjur Buildpack **requires** the `meta-buildpack` to work.
++ The Conjur Buildpack requires the meta-buildpack. If you are unable to use the meta-buildpack (because you are using a custom buildpack, for example), see the [instructions below](#custom-buildpack-usage) for manually loading the buildpack scripts.
 
-+ Ensure that your app is bound to a Conjur service instance. For more information on binding your application to a Conjur service instance, see the [Conjur Service Broker documentation](https://github.com/conjurinc/conjur-service-broker#binding-your-application-to-the-conjur-service)**
++ Ensure that your app is bound to a Conjur service instance. For more information on binding your application to a Conjur service instance, see the [Conjur Service Broker documentation](https://github.com/conjurinc/conjur-service-broker#binding-your-application-to-the-conjur-service)
 
-## Limitations of `meta-buildpack`
++ A `secrets.yml` file exists within the root folder of your app
+
+## How does the buildpack work ?
+
+### `meta-buildpack`
 
 `meta-buildpack` makes it possible to "decorate" the application with the ability to retrieve secrets on startup. Please read [`meta-buildpack` documentation](https://github.com/cf-platform-eng/meta-buildpack#how-it-works) for a quick run through of how `meta-buildpack` works. 
 
 `meta-buildpack` relies on automatic detection of the language buildpack. The first language buildpack in buildpack index order to detect and claim the build will be used to build the droplet and run the application. With this in mind, **it is not currently possible to specify custom buildpacks in the manifest or as an argument to `cf push`**. In these instances `meta-buildpack` will not be invoked; consequently the Conjur buildpack will also not be invoked.
 
-## How does it work ?
+### Lifecycle scripts
 
 The buildpack is comprised of the [3 lifecycle scripts](https://github.com/cf-platform-eng/meta-buildpack#how-to-write-a-decorator) that are required for decorator buildpacks.
 
 + Detect script always returns a non-zero exit status.
-+ Compile script installs summon, summon-conjur in the app's root directory and a `.profile.d` script at `./.profile.d/0000_retrieve-secrets.sh` relative to the app's root directory.
++ Compile script installs summon, summon-conjur in the app's root directory and a `.profile.d` script at `./.profile.d/0001_retrieve-secrets.sh` relative to the app's root directory.
 + Decorate script returns a 0 when `secrets.yml` exists in the root folder of your app and the "cyberark-conjur" key is present in `VCAP_SERVICES`, otherwise non-zero exit status
 
 The `.profile.d` script is responsible for retrieving secrets and injecting them into the session environment variables at the start of the app.
@@ -79,13 +83,23 @@ SSL_CERT: /tmp/ssl-cert.pem
 
 #### Push with `meta-buildpack`
 
-As described in the [`meta-buildpack` documentation](https://github.com/cf-platform-eng/meta-buildpack#how-it-works) the Conjur decorate buildpack will **ONLY** be invoked in the following scenarios:
+Before running `cf push`, ensure that:
 
-+ `cf push` with `meta-buildpack` installed and at the top of list of buildpacks. 
-+ `cf push` with the `meta-buildpack` specified in app's manifest.
-+ `cf push -b meta-buildpack`
++ `meta-buildpack` is installed and at the top of list of buildpacks
++ No buildpack is specified in your application's manifest
++ You will not specify a buildpack with the `-b` flag on `cf push`
 
-Assuming the app is bound to a Conjur service instance, pushing the app will result in the Conjur buildpack being invoked, as well as the language buildpack. The secrets specified in the `secrets.yml` file will then be available in the session environment variables at the start of the app.
+If any of these conditions are not met, follow the [alternate usage directions](#custom-buildpack-usage) below.
+
+Once you run `cf push`, assuming the app is bound to a Conjur service instance, the `meta-buildpack` will first invoke the appropriate language buildpack and then any decorator buildpacks (including the Conjur Buildpack). The secrets specified in the `secrets.yml` file will be available in the session environment variables at the start of the app.
+
+#### <a name="custom-buildpack-usage"></a>Usage for users with custom buildpacks
+
+To retrieve secrets without using `meta-buildpack` you can simply:
+
++ copy the contents of the `./lib` directory in this repository to the `./.profile.d` directory relative to your app's root directory.
+ 
+When your application starts the secrets specified in the `secrets.yml` file will now be available in the session environment variables at the start of the app.
 
 ## Development
 

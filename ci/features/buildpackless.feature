@@ -1,9 +1,9 @@
-Feature: profile d script
-  Script to populate the environment variables with secrets from Conjur
+Feature: profile d scripts without the buildpack
+  Scripts to simultaneously install summon and summon-conjur, and populate the environment variables with secrets from Conjur
 
   @BUILD_DIR
   Scenario: Populates environment with secrets from Conjur
-    Given the 'compile' script is run
+    Given the .profile.d scripts are copied into the lib directory of the app's root folder
     And a root policy:
     """
     - !variable conjur_single_line_secret_id
@@ -25,7 +25,7 @@ Feature: profile d script
     CONJUR_MULTI_LINE_SECRET: !var conjur_multi_line_secret_id
     LITERAL_SECRET: some literal secret
     """
-    When the retrieve secrets .profile.d script is sourced
+    When the .profile.d scripts are sourced
     And the 'env' command is run
     Then the environment contains
     """

@@ -13,6 +13,7 @@ end
 
 Before('@BUILD_DIR') do
   @BUILD_DIR = Dir.mktmpdir
+  @BIN_DIR = "#{@BUILD_DIR}/bin"
 end
 
 After('@BUILD_DIR') do
