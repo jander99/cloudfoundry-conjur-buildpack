@@ -72,6 +72,8 @@ def generate_vcap_creds_hash
     creds.has_key? key.to_s
   end
 
+  @creds_map.reject! { |key, _| creds[key.to_s].empty? }
+
   if !valid_creds
     STDERR.puts("malformed '#{@service_label}' credentials in VCAP_SERVICES")
     exit(1)
