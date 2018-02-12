@@ -18,7 +18,9 @@ trap 'err_report $LINENO' ERR
 #      "appliance_url": "https://conjur.myorg.com/",
 #      "authn_api_key": "2389fh3hf9283niiejwfhjsb83ydbn23u",
 #      "authn_login": "3F20D12E-A470-4B7B-8778-C8885769887F",
-#      "account": "brokered-services"
+#      "account": "brokered-services",
+#      "ssl_certificate": "-----BEGIN CERTIFICATE-----...",
+#      "version": 5
 #    }
 #  }]
 #}
@@ -39,7 +41,9 @@ require 'yaml'
     :account => 'CONJUR_ACCOUNT',
     :authn_api_key => 'CONJUR_AUTHN_API_KEY',
     :authn_login => 'CONJUR_AUTHN_LOGIN',
-    :appliance_url => 'CONJUR_APPLIANCE_URL'
+    :appliance_url => 'CONJUR_APPLIANCE_URL',
+    :ssl_certificate => 'CONJUR_SSL_CERTIFICATE',
+    :version => 'CONJUR_MAJOR_VERSION'
 }
 @vcap_services = YAML::load(ENV['VCAP_SERVICES'].to_s)
 @service_label = 'cyberark-conjur'
@@ -73,7 +77,9 @@ def generate_vcap_creds_hash
     exit(1)
   end
 
-  Hash[ @creds_map.map { |key, env_var_name| [ env_var_name, creds[key.to_s] ] } ]
+  @creds_map.reject! { |key, _| creds[key.to_s].empty? }
+
+  Hash[ @creds_map.map { |key, env_var_name| [ env_var_name, creds[key.to_s].to_s ] } ]
 end
 
 def diff_hash(base, mod)
