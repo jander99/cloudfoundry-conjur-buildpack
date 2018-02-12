@@ -77,7 +77,7 @@ def generate_vcap_creds_hash
     exit(1)
   end
 
-  @creds_map.reject! { |key, _| creds[key.to_s].empty? }
+  @creds_map.reject! { |key, _| creds[key.to_s].to_s.empty? }
 
   Hash[ @creds_map.map { |key, env_var_name| [ env_var_name, creds[key.to_s].to_s ] } ]
 end
