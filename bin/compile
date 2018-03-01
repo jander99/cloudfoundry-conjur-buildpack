@@ -1,14 +1,14 @@
 #!/bin/bash -e
 # bin/compile <build-dir>
 
+echo "[cyberark-conjur-buildpack]: compiling"
+
 BUILD_DIR=$1
-ESCAPED_BUILD_DIR=$(echo $BUILD_DIR | sed -e 's/[\/&]/\\&/g')
 BIN_DIR=$(cd $(dirname $0); pwd)
-ROOT_DIR=$(dirname $BIN_DIR)
+BUILDPACK_DIR=$(dirname $BIN_DIR)
 
-$ROOT_DIR/lib/0000_install-summon.sh $BUILD_DIR
-
-pushd $BUILD_DIR
-  mkdir -p ".profile.d"
-  cp $ROOT_DIR/lib/0001_retrieve-secrets.sh ./.profile.d/0001_retrieve-secrets.sh
+pushd ${BUILD_DIR}
+  mkdir -p .profile.d vendor
+  cp ${BUILDPACK_DIR}/vendor/conjur-env ./vendor/conjur-env
+  cp ${BUILDPACK_DIR}/lib/0001_retrieve-secrets.sh ./.profile.d/0001_retrieve-secrets.sh
 popd
