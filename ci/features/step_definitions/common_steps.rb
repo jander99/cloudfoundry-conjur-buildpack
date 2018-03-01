@@ -26,15 +26,11 @@ Given(/^the '([^"]*)' script is run$/) do |script|
   step "the '#{ENV['BUILDPACK_BUILD_DIR']}/bin/#{script} #{@BUILD_DIR}' command is run"
 end
 
-Given(/^the \.profile\.d scripts are copied into the lib directory of the app's root folder$/) do
+Given(/^the compile script is run against the app's root folder$/) do
   step "the following command is run:", <<EOS
-cd #{@BUILD_DIR}
-mkdir -p .profile.d
-cp #{ENV['BUILDPACK_BUILD_DIR']}/lib/0000_install-summon.sh ./.profile.d/0000_install-summon.sh
-cp #{ENV['BUILDPACK_BUILD_DIR']}/lib/0001_retrieve-secrets.sh ./.profile.d/0001_retrieve-secrets.sh
+#{ENV['BUILDPACK_BUILD_DIR']}/bin/compile #{@BUILD_DIR}
 EOS
 end
-
 
 Given(/^the following command is run:$/) do |multiline_text|
   step "the '#{multiline_text}' command is run"
@@ -64,7 +60,7 @@ export VCAP_SERVICES='
    "authn_login": "admin",
    "account": "#{Conjur.configuration.account}",
    "ssl_certificate": "",
-   "version": "5"
+   "version": 5
   }
  }]
 }

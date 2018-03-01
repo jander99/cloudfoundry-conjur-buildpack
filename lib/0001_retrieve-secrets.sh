@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-set +x
 
-echo "cyberark-conjur-buildpack: retrieving & injecting secrets"
+echo "[cyberark-conjur-buildpack]: retrieving & injecting secrets"
 
 err_report() {
   local previous_exit=$?
@@ -26,102 +25,17 @@ trap 'err_report $LINENO' ERR
 #}
 #'
 
-_conjur_BUILD_DIR=$1
-_conjur_BIN_DIR="$_conjur_BUILD_DIR/bin"
+# making sure that no tracing takes place, we're dealing with secrets here :)
+declare xtrace=""
+case $- in
+  (*x*) xtrace="xtrace";;
+esac
+set +x
 
 # inject secrets into environment
-pushd $_conjur_BUILD_DIR
-  _conjur_tmp_script=$(BIN_DIR="$_conjur_BIN_DIR" ruby <<'EndOfRubyScript'
-#!/usr/bin/ruby
-
-require 'open3'
-require 'yaml'
-
-@creds_map = {
-    :account => 'CONJUR_ACCOUNT',
-    :authn_api_key => 'CONJUR_AUTHN_API_KEY',
-    :authn_login => 'CONJUR_AUTHN_LOGIN',
-    :appliance_url => 'CONJUR_APPLIANCE_URL',
-    :ssl_certificate => 'CONJUR_SSL_CERTIFICATE',
-    :version => 'CONJUR_MAJOR_VERSION'
-}
-@vcap_services = YAML::load(ENV['VCAP_SERVICES'].to_s)
-@service_label = 'cyberark-conjur'
-
-def generate_vcap_creds_hash
-  if @vcap_services.empty?
-    STDERR.puts('VCAP_SERVICES not found')
-    exit(1)
-  end
-
-  vcap_service = @vcap_services[@service_label]
-  if !vcap_service.is_a?(Array) || vcap_service.count == 0
-    STDERR.puts("single-entry '#{@service_label}' array not found in VCAP_SERVICES")
-    exit(1)
-  end
-
-  vcap_service = vcap_service[0]
-
-  if !vcap_service.has_key? 'credentials'
-    STDERR.puts("credentials not found under '#{@service_label}'[0] in VCAP_SERVICES")
-    exit(1)
-  end
-
-  creds = vcap_service['credentials']
-  valid_creds = @creds_map.all? do |key, _|
-    creds.has_key? key.to_s
-  end
-
-  if !valid_creds
-    STDERR.puts("malformed '#{@service_label}' credentials in VCAP_SERVICES")
-    exit(1)
-  end
-
-  @creds_map.reject! { |key, _| creds[key.to_s].to_s.empty? }
-
-  Hash[ @creds_map.map { |key, env_var_name| [ env_var_name, creds[key.to_s].to_s ] } ]
-end
-
-def diff_hash(base, mod)
-  mod.dup.delete_if { |k, v| base[k] == v }
-end
-
-def env_hash_from_commands(*commands)
-  stdout, stderr, status = Open3.capture3(*commands)
-  status.success? || (STDERR.puts(stdout + stderr); exit(status.exitstatus))
-
-  YAML::load stdout
-end
-
-original_env_script = <<EOL
-ruby -e "require 'yaml'; puts YAML::dump(ENV.to_h)";
-EOL
-summon_env_script = <<EOL
-#{ENV['BIN_DIR']}/summon -p #{ENV['BIN_DIR']}/summon-conjur ruby -e "require 'yaml'; puts YAML::dump(ENV.to_h)";
-EOL
-
-vcap_creds_hash = generate_vcap_creds_hash
-diff_hash(
-    env_hash_from_commands({}, original_env_script),
-    env_hash_from_commands(vcap_creds_hash, summon_env_script)
-).each do |key, value|
-  value = value.gsub("'", %q('"'"'))
-  puts "export #{key}='#{value}'"
-end
-
-EndOfRubyScript
-)
-  # checks for error from ruby and passes it along
-  [ $? -eq 0 ] || {
-    _conjur_previous_exit=$?;
-    echo "$_conjur_tmp_script";
-    exit ${_conjur_previous_exit};
-  }
-
-  # evaluates the env_var exports
-  eval "${_conjur_tmp_script}"
+pushd $1
+  eval "$(./vendor/conjur-env)"
 popd
 
-# clean up
-unset -f _conjur_tmp_script _conjur_previous_exit _conjur_BIN_DIR conjur_BUILD_DIR
+[ ! -z "$xtrace" ] && set -x
 trap - ERR
