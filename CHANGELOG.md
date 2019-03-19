@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.0.1] - 2019-03-19
+
+### Fixed
+- bin/compile script is made executable
+
 ## [2.0.0] - 2019-02-15
 
 ### Changed
@@ -32,7 +37,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/cloudfoundry-conjur-buildpack/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/cyberark/cloudfoundry-conjur-buildpack/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/cyberark/cloudfoundry-conjur-buildpack/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/cyberark/cloudfoundry-conjur-buildpack/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/cyberark/cloudfoundry-conjur-buildpack/compare/v0.3.0...v1.0.0
 [0.3.0]: https://github.com/cyberark/cloudfoundry-conjur-buildpack/compare/v0.2.0...v0.3.0
